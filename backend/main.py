@@ -6,12 +6,12 @@ from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
 # Import backend modules
-from backend.agent.mentor_agent import run_mentor_agent
-from backend.features.emotion_detector import detect_emotion
-from backend.features.quiz_engine import generate_quiz
-from backend.features.study_planner import generate_study_plan
-from backend.rag.ingest import ingest_pdf_file, SYLLABUS_DIR
-from backend.analytics.db import save_quiz_session, get_all_sessions, get_weak_areas, get_progress, reset_data
+from agent.mentor_agent import run_mentor_agent
+from features.emotion_detector import detect_emotion
+from features.quiz_engine import generate_quiz
+from features.study_planner import generate_study_plan
+from rag.ingest import ingest_pdf_file, SYLLABUS_DIR
+from analytics.db import save_quiz_session, get_all_sessions, get_weak_areas, get_progress, reset_data
 
 load_dotenv()
 
