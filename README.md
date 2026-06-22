@@ -47,7 +47,7 @@ EduMind AI is an industry-level, full-stack, personalized learning workspace des
                                    |                 | Ingest
                                    v                 |
                            +-------+-------+   +-----+-----+
-                           | Gemini 1.5    |   | PyMuPDF   |
+                           | Gemini 2.5    |   | PyMuPDF   |
                            | Flash API     |   | Parser    |
                            +---------------+   +-----------+
 ```
