@@ -46,7 +46,7 @@ def generate_study_plan(subject: str, exam_date: str, weak_areas: list) -> list:
 
     # Initialize Gemini model with JSON output configuration
     llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",
+        model="gemini-2.5-flash",
         google_api_key=api_key,
         temperature=0.7,
         model_kwargs={"response_mime_type": "application/json"}
