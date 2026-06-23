@@ -5,8 +5,8 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import AIMessage, HumanMessage
-from backend.rag.retriever import retrieve
-from backend.features.emotion_detector import adapt_tone
+from rag.retriever import retrieve
+from features.emotion_detector import adapt_tone
 
 load_dotenv()
 
