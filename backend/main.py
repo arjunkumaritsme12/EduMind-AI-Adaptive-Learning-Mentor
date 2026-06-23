@@ -20,7 +20,11 @@ app = FastAPI(title="EduMind AI API", version="1.0.0")
 # Configure CORS for Vite Frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://edu-mind-ai-adaptive-learning-mento.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
