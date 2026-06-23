@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
-from backend.rag.ingest import CHROMA_DB_DIR, get_embeddings
+from rag.ingest import CHROMA_DB_DIR, get_embeddings
 
 load_dotenv()
 
