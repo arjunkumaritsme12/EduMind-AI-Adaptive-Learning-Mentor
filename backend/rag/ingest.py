@@ -1,7 +1,14 @@
 import os
 import glob
 from dotenv import load_dotenv
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders import (
+    PyMuPDFLoader,
+    TextLoader,
+    Docx2txtLoader,
+    UnstructuredPowerPointLoader,
+    UnstructuredExcelLoader,
+    UnstructuredFileLoader
+)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
@@ -24,16 +31,35 @@ def get_embeddings():
         google_api_key=api_key
     )
 
-def ingest_pdf_file(file_path: str) -> int:
+def get_loader(file_path: str):
+    """Returns appropriate document loader based on file extension."""
+    ext = os.path.splitext(file_path)[1].lower()
+    
+    loaders = {
+        ".pdf": PyMuPDFLoader,
+        ".txt": TextLoader,
+        ".docx": Docx2txtLoader,
+        ".doc": Docx2txtLoader,
+        ".pptx": UnstructuredPowerPointLoader,
+        ".ppt": UnstructuredPowerPointLoader,
+        ".xlsx": UnstructuredExcelLoader,
+        ".xls": UnstructuredExcelLoader,
+    }
+    
+    loader_class = loaders.get(ext, UnstructuredFileLoader)
+    return loader_class(file_path)
+
+def ingest_file(file_path: str) -> int:
     """
-    Ingests a single PDF file, splits it, generates embeddings,
-    and stores it in ChromaDB. Returns the number of chunks ingested.
+    Ingests a file (PDF, DOC, DOCX, PPT, PPTX, TXT, etc.), splits it,
+    generates embeddings, and stores it in ChromaDB.
+    Returns the number of chunks ingested.
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
         
-    # Load PDF
-    loader = PyMuPDFLoader(file_path)
+    # Load document
+    loader = get_loader(file_path)
     documents = loader.load()
     
     if not documents:
@@ -56,16 +82,19 @@ def ingest_pdf_file(file_path: str) -> int:
     
     return len(chunks)
 
-def ingest_all_pdfs() -> int:
+def ingest_all_supported_files() -> int:
     """
-    Finds all PDFs in the syllabus directory and ingests them.
+    Finds all supported files in the syllabus directory and ingests them.
     """
-    pdf_files = glob.glob(os.path.join(SYLLABUS_DIR, "*.pdf"))
+    supported_extensions = ["*.pdf", "*.txt", "*.docx", "*.doc", "*.pptx", "*.ppt", "*.xlsx", "*.xls"]
     total_chunks = 0
-    for pdf_path in pdf_files:
-        try:
-            chunks = ingest_pdf_file(pdf_path)
-            total_chunks += chunks
-        except Exception as e:
-            print(f"Error ingesting {pdf_path}: {e}")
+    
+    for ext in supported_extensions:
+        files = glob.glob(os.path.join(SYLLABUS_DIR, ext))
+        for file_path in files:
+            try:
+                chunks = ingest_file(file_path)
+                total_chunks += chunks
+            except Exception as e:
+                print(f"Error ingesting {file_path}: {e}")
     return total_chunks

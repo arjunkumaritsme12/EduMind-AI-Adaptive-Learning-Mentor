@@ -10,7 +10,7 @@ from agent.mentor_agent import run_mentor_agent
 from features.emotion_detector import detect_emotion
 from features.quiz_engine import generate_quiz
 from features.study_planner import generate_study_plan
-from rag.ingest import ingest_pdf_file, SYLLABUS_DIR
+from rag.ingest import ingest_file, SYLLABUS_DIR
 from analytics.db import save_quiz_session, get_all_sessions, get_weak_areas, get_progress, reset_data
 
 load_dotenv()
@@ -137,12 +137,15 @@ async def study_plan_endpoint(request: StudyPlanRequest):
 @app.post("/api/upload")
 async def upload_endpoint(file: UploadFile = File(...)):
     """
-    Saves an uploaded PDF to data/syllabus/ and ingests it into ChromaDB.
+    Saves an uploaded file (PDF, DOC, DOCX, PPT, PPTX, TXT, etc.) to data/syllabus/ and ingests it into ChromaDB.
     """
-    if not file.filename.lower().endswith(".pdf"):
+    supported_extensions = [".pdf", ".txt", ".docx", ".doc", ".pptx", ".ppt", ".xlsx", ".xls"]
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    
+    if file_ext not in supported_extensions:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Unsupported file format. Please upload a PDF."
+            detail=f"Unsupported file format. Supported formats: {', '.join(supported_extensions)}"
         )
         
     try:
@@ -153,8 +156,8 @@ async def upload_endpoint(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
-        # Ingest PDF into ChromaDB
-        chunks_count = ingest_pdf_file(file_path)
+        # Ingest file into ChromaDB
+        chunks_count = ingest_file(file_path)
         
         return {
             "message": f"Successfully ingested '{file.filename}' into knowledge base.",

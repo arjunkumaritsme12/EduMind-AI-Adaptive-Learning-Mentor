@@ -24,19 +24,21 @@ def generate_quiz(topic: str, difficulty: str) -> list:
       }
     ]
     """
-    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise ValueError("GEMINI_API_KEY is not set in environment or .env file.")
-
-    # Initialize Gemini model with JSON output configuration
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        google_api_key=api_key,
-        temperature=0.7,
-        model_kwargs={"response_mime_type": "application/json"}
-    )
     
-    prompt = f"""
+    try:
+        api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not set in environment or .env file.")
+
+        # Initialize Gemini model with JSON output configuration
+        llm = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
+            google_api_key=api_key,
+            temperature=0.7,
+            model_kwargs={"response_mime_type": "application/json"}
+        )
+        
+        prompt = f"""
 You are an expert university professor. Generate exactly 5 multiple choice questions (MCQs) for the topic "{topic}" at an "{difficulty}" difficulty level.
 Return your response as a valid JSON array of objects, containing exactly 5 questions.
 Each object MUST have the following structure:
@@ -48,14 +50,19 @@ Each object MUST have the following structure:
 Do not include any introductory or concluding text, only the raw JSON array.
 """
 
-    messages = [
-        SystemMessage(content="You are a strict JSON generator. You output only raw valid JSON lists matching the requested schema."),
-        HumanMessage(content=prompt)
-    ]
-    
-    try:
+        messages = [
+            SystemMessage(content="You are a strict JSON generator. You output only raw valid JSON lists matching the requested schema."),
+            HumanMessage(content=prompt)
+        ]
+        
         response = llm.invoke(messages)
         content = response.content.strip()
+        
+        # Strip potential markdown formatting (```json ... ```)
+        import re
+        match = re.search(r'\[.*\]', content, re.DOTALL)
+        if match:
+            content = match.group(0)
         
         # Load and parse JSON
         questions = json.loads(content)

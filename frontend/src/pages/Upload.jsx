@@ -53,15 +53,17 @@ export default function Upload() {
     setStatus('idle');
     setProgress(0);
     
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      setErrorMsg('Invalid file format. Only PDF files are supported for RAG indexing.');
+    const supportedExtensions = ['.pdf', '.txt', '.docx', '.doc', '.pptx', '.ppt', '.xlsx', '.xls'];
+    const fileExt = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    if (!supportedExtensions.includes(fileExt)) {
+      setErrorMsg('Invalid file format. Supported formats: .pdf, .txt, .docx, .doc, .pptx, .ppt, .xlsx, .xls');
       setSelectedFile(null);
       return;
     }
     
     // Check file size (limit to 15MB for stability)
     if (file.size > 15 * 1024 * 1024) {
-      setErrorMsg('File is too large. Please upload a PDF under 15MB.');
+      setErrorMsg('File is too large. Please upload a file under 15MB.');
       setSelectedFile(null);
       return;
     }
@@ -166,7 +168,7 @@ export default function Upload() {
               type="file"
               className="hidden"
               onChange={handleFileChange}
-              accept=".pdf"
+              accept=".pdf,.txt,.docx,.doc,.pptx,.ppt,.xlsx,.xls"
             />
 
             {/* Drag & Drop Area */}
@@ -182,10 +184,10 @@ export default function Upload() {
               }`}
             >
               <span className="text-4xl mb-4 select-none">📂</span>
-              <p className="font-bold text-white text-sm md:text-base mb-1">Drag and drop syllabus PDF here</p>
+              <p className="font-bold text-white text-sm md:text-base mb-1">Drag and drop notes here</p>
               <p className="text-xs text-textSecondary mb-4">Or click to browse from explorer</p>
               <span className="px-3 py-1.5 rounded-lg bg-white/5 border border-glassBorder text-[10px] text-neonCyan font-extrabold uppercase tracking-wider select-none">
-                PDF File Only (Max 15MB)
+                PDF, DOC, DOCX, PPT, PPTX, TXT, XLS, XLSX (Max 15MB)
               </span>
             </div>
           </form>
